@@ -35,19 +35,19 @@ public class ContactService {
         }
     }
 
-    public Contact getByEmail(String email) {
+    public List<Contact> getByEmail(String email) {
         return contactDAO.getByEmail(email);
     }
 
-    public Contact getByFirstName(String firstName) {
+    public List<Contact> getByFirstName(String firstName) {
         return contactDAO.getByFirstName(firstName);
     }
 
-    public Contact getByLastName(String lastName) {
+    public List<Contact> getByLastName(String lastName) {
         return contactDAO.getByLastName(lastName);
     }
 
-    public Contact getByPhoneNumber(String phoneNumber) {
+    public List<Contact> getByPhoneNumber(String phoneNumber) {
         return contactDAO.getByPhoneNumber(phoneNumber);
     }
 
@@ -111,21 +111,14 @@ public class ContactService {
 
             System.out.println("No puede contener valores nulos.");
             return false;
-        }
-        else if(contact == "") {
 
-            System.out.println("Ningún campo puede estar vacío.");
+        } else if (contact.isBlank()){
+            System.out.println("Ningun campo puede estar vacio.");
             return false;
-
-        }
-        else if (contact==" "){
-
-            System.out.println("Ningún campo puede estar vacío.");
-            return false;
-
         }
 
         return true;
+
     }
 
     public boolean validateEmail(String email){

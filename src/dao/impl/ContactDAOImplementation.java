@@ -6,6 +6,7 @@ import model.Contact;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class ContactDAOImplementation implements ContactDAO {
     String url = "jdbc:mysql://localhost:3306/agenda";
@@ -15,11 +16,11 @@ public class ContactDAOImplementation implements ContactDAO {
     @Override
     public void create(Contact contact) {
 
-        try (Connection con = DriverManager.getConnection(url,username,password)){
+        try (Connection con = DriverManager.getConnection(url, username, password)) {
 
             String sql = "INSERT INTO contact (firstName, lastName, phoneNumber, email) VALUES (?, ?, ?, ?)";
 
-            try (PreparedStatement ps = con.prepareStatement(sql)){
+            try (PreparedStatement ps = con.prepareStatement(sql)) {
 
                 ps.setString(1, contact.firstName);
                 ps.setString(2, contact.lastName);
@@ -30,8 +31,7 @@ public class ContactDAOImplementation implements ContactDAO {
 
             }
 
-        }
-        catch (SQLException e){
+        } catch (SQLException e) {
 
             e.printStackTrace();
 
@@ -39,146 +39,143 @@ public class ContactDAOImplementation implements ContactDAO {
     }
 
     @Override
-    public Contact getByEmail(String email) {
+    public List<Contact> getByEmail(String email) {
 
-        try (Connection con = DriverManager.getConnection(url,username,password)){
+        List<Contact> contactList = new ArrayList<>();
 
-            String sql = "SELECT firstName, lastName, phoneNumber, email from contact where email = ?";
+        ResultSet rs = null;
 
-            try (PreparedStatement ps = con.prepareStatement(sql)){
+        try (Connection con = DriverManager.getConnection(url, username, password)) {
+
+            String sql = "SELECT firstName, lastName, phoneNumber, email from contact where email like CONCAT('%', ?, '%')";
+
+            try (PreparedStatement ps = con.prepareStatement(sql)) {
 
                 ps.setString(1, email);
-                ResultSet rs = ps.executeQuery();
+                rs = ps.executeQuery();
 
-                while(rs.next()) {
-                    String firstName = rs.getString(1);
-                    String lastName = rs.getString(2);
-                    String phoneNumber = rs.getString(3);
-                    Contact contact = new Contact();
-                    contact.firstName = firstName;
-                    contact.lastName = lastName;
-                    contact.phoneNumber = phoneNumber;
-                    contact.email = email;
-                    return contact;
-                }
+                return mapResultSet(rs);
             }
 
-        }
-        catch (SQLException e){
+        } catch (SQLException e) {
 
             e.printStackTrace();
 
+        } finally {
+            try {
+                if(rs != null) rs.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
 
         return null;
     }
 
     @Override
-    public Contact getByFirstName(String firstName) {
+    public List<Contact> getByFirstName(String firstName) {
 
-        try (Connection con = DriverManager.getConnection(url,username,password)){
+        List<Contact> contactList = new ArrayList<>();
 
-            String sql = "SELECT firstName, lastName, phoneNumber, email from contact where firstName = ?";
+        ResultSet rs = null;
 
-            try (PreparedStatement ps = con.prepareStatement(sql)){
+        try (Connection con = DriverManager.getConnection(url, username, password)) {
+
+            String sql = "SELECT firstName, lastName, phoneNumber, email from contact where firstName like CONCAT('%', ?, '%')";
+
+            try (PreparedStatement ps = con.prepareStatement(sql)) {
 
                 ps.setString(1, firstName);
-                ResultSet rs = ps.executeQuery();
+                rs = ps.executeQuery();
 
-                while(rs.next()) {
+                contactList = mapResultSet(rs);
 
-                    String lastName = rs.getString(2);
-                    String phoneNumber = rs.getString(3);
-                    String email = rs.getString(4);
-                    Contact contact = new Contact();
-                    contact.firstName = firstName;
-                    contact.lastName = lastName;
-                    contact.phoneNumber = phoneNumber;
-                    contact.email = email;
-                    return contact;
-
-                }
             }
-        }
-        catch (SQLException e){
+        } catch (SQLException e) {
 
             e.printStackTrace();
 
-        }
-
-        return null;
-    }
-
-    @Override
-    public Contact getByLastName(String lastName) {
-
-        try (Connection con = DriverManager.getConnection(url,username,password)){
-
-            String sql = "SELECT firstName, lastName, phoneNumber, email from contact where lastName = ?";
-
-            try (PreparedStatement ps = con.prepareStatement(sql)){
-
-                ps.setString(1, lastName);
-                ResultSet rs = ps.executeQuery();
-
-                while(rs.next()) {
-
-                    String firstName = rs.getString(1);
-                    String phoneNumber = rs.getString(3);
-                    String email = rs.getString(4);
-                    Contact contact = new Contact();
-                    contact.firstName = firstName;
-                    contact.lastName = lastName;
-                    contact.phoneNumber = phoneNumber;
-                    contact.email = email;
-                    return contact;
-
-                }
+        }finally {
+            try {
+                if(rs != null) rs.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
-        catch (SQLException e){
 
-            e.printStackTrace();
-
-        }
-
-        return null;
+        return contactList;
     }
 
     @Override
-    public Contact getByPhoneNumber(String phoneNumber) {
+    public List<Contact> getByLastName(String lastName) {
 
-        try (Connection con = DriverManager.getConnection(url,username,password)){
+        List<Contact> contactList = new ArrayList<>();
 
-            String sql = "SELECT firstName, lastName, phoneNumber, email from contact where phoneNumber = ?";
+        ResultSet rs = null;
 
-            try (PreparedStatement ps = con.prepareStatement(sql)){
+        try {
+            Connection con = DriverManager.getConnection(url, username, password);
+
+            String sql = "SELECT firstName, lastName, phoneNumber, email from contact where lastName like CONCAT ('%', ?,'%')";
+
+            PreparedStatement ps = con.prepareStatement(sql);
+
+            ps.setString(1, lastName);
+            rs = ps.executeQuery();
+
+            contactList = mapResultSet(rs);
+
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error obteniendo el apellido");
+        } catch (SQLException s) {
+            if (s instanceof SQLSyntaxErrorException) {
+
+            }
+            Logger.getAnonymousLogger().info("Prueba");
+        } finally {
+            try {
+                if(rs != null) rs.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return contactList;
+    }
+
+
+    @Override
+    public List<Contact> getByPhoneNumber(String phoneNumber) {
+
+        List<Contact> contactList = new ArrayList<>();
+
+        ResultSet rs = null;
+
+        try (Connection con = DriverManager.getConnection(url, username, password)) {
+
+            String sql = "SELECT firstName, lastName, phoneNumber, email from contact where phoneNumber like CONCAT('%', ?, '%')";
+
+            try (PreparedStatement ps = con.prepareStatement(sql)) {
 
                 ps.setString(1, phoneNumber);
-                ResultSet rs = ps.executeQuery();
+                rs = ps.executeQuery();
 
-                while(rs.next()) {
+                contactList = mapResultSet(rs);
 
-                    String firstName = rs.getString(1);
-                    String lastName = rs.getString(2);
-                    String email = rs.getString(4);
-                    Contact contact = new Contact();
-                    contact.firstName = firstName;
-                    contact.lastName = lastName;
-                    contact.phoneNumber = phoneNumber;
-                    contact.email = email;
-                    return contact;
-
-                }
             }
-        }
-        catch (SQLException e){
+        } catch (SQLException e) {
 
             e.printStackTrace();
 
+        } finally {
+            try {
+                if(rs != null) rs.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
 
-        return null;
+        return contactList;
     }
 
     @Override
@@ -186,18 +183,19 @@ public class ContactDAOImplementation implements ContactDAO {
 
         int affectedRows = 0;
 
-        try(Connection con = DriverManager.getConnection(url,username,password)){
+        try (Connection con = DriverManager.getConnection(url, username, password)) {
 
-            String sql = "DELETE FROM contact WHERE phoneNumber = ?";
+            String sql = "DELETE FROM contact WHERE phoneNumber like CONCAT ('%', ?, '%')";
 
-            try(PreparedStatement ps = con.prepareStatement(sql)){
+            try (PreparedStatement ps = con.prepareStatement(sql)) {
 
                 ps.setString(1, phoneNumber);
                 affectedRows = ps.executeUpdate();
 
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-        }
-        catch (SQLException e){
+        } catch (SQLException e) {
 
             e.printStackTrace();
 
@@ -211,38 +209,44 @@ public class ContactDAOImplementation implements ContactDAO {
 
         List<Contact> contactList = new ArrayList<>();
 
-        try (Connection con = DriverManager.getConnection(url,username,password)){
+        try (Connection con = DriverManager.getConnection(url, username, password)) {
 
-            String sql = "SELECT * FROM contact";
+            String sql = "SELECT firstName, lastName, phoneNumber, email FROM contact";
 
-            try (PreparedStatement ps = con.prepareStatement(sql)){
+            try (PreparedStatement ps = con.prepareStatement(sql)) {
 
                 ResultSet rs = ps.executeQuery();
 
-                while (rs.next()){
+                contactList = mapResultSet(rs);
 
-                    int id = rs.getInt("id");
-                    String firstName = rs.getString("firstName");
-                    String lastName = rs.getString("lastName");
-                    String phoneNumber = rs.getString("phoneNumber");
-                    String email = rs.getString("email");
-
-                    Contact contact = new Contact();
-                    contact.firstName = firstName;
-                    contact.lastName = lastName;
-                    contact.phoneNumber = phoneNumber;
-                    contact.email = email;
-
-                    contactList.add(contact);
-                }
+                rs.close();
             }
-        }
-        catch (SQLException e){
+        } catch (SQLException e) {
 
             e.printStackTrace();
 
         }
 
+        return contactList;
+    }
+
+    private List<Contact> mapResultSet(ResultSet rs) throws SQLException {
+        List<Contact> contactList = new ArrayList<>();
+        while (rs.next()) {
+
+            String firstName = rs.getString("firstName");
+            String lastName = rs.getString("lastName");
+            String phoneNumber = rs.getString("phoneNumber");
+            String email = rs.getString("email");
+
+            Contact contact = new Contact();
+            contact.firstName = firstName;
+            contact.lastName = lastName;
+            contact.phoneNumber = phoneNumber;
+            contact.email = email;
+
+            contactList.add(contact);
+        }
         return contactList;
     }
 }

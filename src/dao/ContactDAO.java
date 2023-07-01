@@ -6,10 +6,10 @@ import java.util.List;
 
 public interface ContactDAO {
     void create(Contact contact);
-    Contact getByEmail(String email);
-    Contact getByFirstName(String firstName);
-    Contact getByLastName(String lastName);
-    Contact getByPhoneNumber(String phoneNumber);
+    List<Contact> getByEmail(String email);
+    List<Contact> getByFirstName(String firstName);
+    List<Contact> getByLastName(String lastName);
+    List<Contact> getByPhoneNumber(String phoneNumber);
     int delete(String phoneNumber);
     List<Contact> showAll();
 }

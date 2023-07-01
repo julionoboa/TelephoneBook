@@ -131,12 +131,13 @@ public class ContactMenu {
                     //Pidiendo nombre a consultar
                     System.out.println("Introduzca el nombre que desea buscar:");
                     String firstName = sc.nextLine();
+                    isBlank(firstName);
 
                     //Llamando método desde nuestro objeto tipo Contacto
-                    contactFromDB = contactService.getByFirstName(firstName);
+                    contactList = contactService.getByFirstName(firstName);
 
                     //Ciclo para validar que el contacto exista o el nombre sea incorrecto
-                        while (contactFromDB == null){
+                        while (contactList == null || contactList.size() == 0){
                             System.out.println("Nombre incorrecto o no existe en la agenda");
                             System.out.println("Introduzca el nombre que desea buscar (o escriba 0 para salir):");
 
@@ -148,7 +149,8 @@ public class ContactMenu {
                                 break;
                             }
                             //Llamando método desde nuestro objeto tipo contacto
-                            contactFromDB = contactService.getByFirstName(firstName);
+                            contactList = contactService.getByFirstName(firstName);
+
                         }
 
                         //Condicional para romper flujo en caso de escribir 0 (fuera del While)
@@ -157,7 +159,11 @@ public class ContactMenu {
                     }
 
                     //Mostrando contactos
-                    showContacts(contactFromDB);
+
+                    for (Contact i : contactList){
+                        showContacts(i);
+                    }
+                    contactList = null;
                     break;
 
                     //Opción 3 del menú
@@ -166,12 +172,18 @@ public class ContactMenu {
                     //Pidiendo apellido a consultar
                     System.out.println("Introduzca el apellido que desea buscar:");
                     String lastName = sc.nextLine();
+                    isBlank(lastName);
 
                     //Llamando método desde nuestro objeto tipo Contacto
-                    contactFromDB = contactService.getByLastName(lastName);
+                    try {
+                        contactList = contactService.getByLastName(lastName);
+                    } catch (RuntimeException e){
+                        System.out.println("Error obteniendo contacto por apellido. El programa se cerrara.");
+                        System.exit(0);
+                    }
 
                     //Ciclo para validar que el contacto exista o el apellido sea incorrecto
-                    while (contactFromDB == null){
+                    while (contactList == null || contactList.size() == 0){
                         System.out.println("Apellido incorrecto o no existe en la agenda");
                         System.out.println("Introduzca el apellido que desea buscar (o escriba 0 para salir):");
 
@@ -184,7 +196,7 @@ public class ContactMenu {
                         }
 
                         //Llamando método desde nuestro objeto tipo Contacto
-                        contactFromDB = contactService.getByLastName(lastName);
+                        contactList = contactService.getByLastName(lastName);
                     }
 
                     //Condicional para romper flujo en caso de escribir 0 (fuera del While)
@@ -193,7 +205,10 @@ public class ContactMenu {
                     }
 
                     //Llamando método para mostrar contactos
-                    showContacts(contactFromDB);
+                    for (Contact i : contactList){
+                        showContacts(i);
+                    }
+                    contactList = null;
                     break;
 
                     //Opción 4 del menú
@@ -202,12 +217,13 @@ public class ContactMenu {
                     //Pidiendo correo electrónico a consultar
                     System.out.println("Introduzca el correo electrónico que desea consultar:");
                     String email = sc.nextLine();
+                    isBlank(email);
 
                     //Llamando método desde nuestro objeto tipo Contacto
-                    contactFromDB = contactService.getByEmail(email);
+                    contactList = contactService.getByEmail(email);
 
                     //Ciclo para validar que el contacto exista o el correo electrónico sea incorrecto
-                    while (contactFromDB == null){
+                    while (contactList == null || contactList.size() == 0){
                         System.out.println("Correo electrónico incorrecto o no existe en la agenda");
                         System.out.println("Introduzca el correo electrónico que desea buscar (o escriba 0 para salir):");
 
@@ -220,7 +236,7 @@ public class ContactMenu {
                         }
 
                         //Llamando método desde nuestro objeto tipo Contacto
-                        contactFromDB = contactService.getByEmail(email);
+                        contactList = contactService.getByEmail(email);
                     }
 
                     //Condicional para romper flujo en caso de escribir 0 (fuera del While)
@@ -229,7 +245,11 @@ public class ContactMenu {
                     }
 
                     //Llamando método para mostrar contactos
-                    showContacts(contactFromDB);
+
+                    for (Contact i : contactList){
+                        showContacts(i);
+                    }
+                    contactList = null;
                     break;
 
                     //Opción 5 del menú
@@ -238,6 +258,7 @@ public class ContactMenu {
                     //Pidiendo teléfono a eliminar
                     System.out.println("Introduzca el teléfono a eliminar:");
                     String phoneNumber = sc.nextLine();
+                    isBlank(phoneNumber);
 
                     //Llamando método para validar número de teléfono desde nuestro objeto contactService
                     contactService.validateNumber(phoneNumber);
@@ -266,6 +287,8 @@ public class ContactMenu {
                     for (Contact i : contactList) {
                         showContacts(i);
                 }
+                    contactList = null;
+                    break;
             }
 
                         //Pregunta de confirmacion
@@ -327,4 +350,13 @@ public class ContactMenu {
         System.out.println("-------------------------------");
         return null;
     }
+
+    public void isBlank(String n) {
+        Scanner sc = new Scanner(System.in);
+        while (n.isBlank()){
+            System.out.println("No debe estar vacio. Favor introducir nuevamente:");
+            n = sc.nextLine();
+        }
+    }
+
 }
