@@ -39,7 +39,7 @@ public class ContactDAOImplementation implements ContactDAO {
     }
 
     @Override
-    public List<Contact> getByEmail(String email) {
+    public List<Contact> getByEmail(Contact contact) {
 
         List<Contact> contactList = new ArrayList<>();
 
@@ -51,7 +51,7 @@ public class ContactDAOImplementation implements ContactDAO {
 
             try (PreparedStatement ps = con.prepareStatement(sql)) {
 
-                ps.setString(1, email);
+                ps.setString(1, contact.email);
                 rs = ps.executeQuery();
 
                 return mapResultSet(rs);
@@ -63,7 +63,7 @@ public class ContactDAOImplementation implements ContactDAO {
 
         } finally {
             try {
-                if(rs != null) rs.close();
+                if (rs != null) rs.close();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -73,9 +73,10 @@ public class ContactDAOImplementation implements ContactDAO {
     }
 
     @Override
-    public List<Contact> getByFirstName(String firstName) {
+    public List<Contact> getByFirstName(Contact contact) {
 
         List<Contact> contactList = new ArrayList<>();
+        String firstName = contact.firstName;
 
         ResultSet rs = null;
 
@@ -95,9 +96,9 @@ public class ContactDAOImplementation implements ContactDAO {
 
             e.printStackTrace();
 
-        }finally {
+        } finally {
             try {
-                if(rs != null) rs.close();
+                if (rs != null) rs.close();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -107,7 +108,7 @@ public class ContactDAOImplementation implements ContactDAO {
     }
 
     @Override
-    public List<Contact> getByLastName(String lastName) {
+    public List<Contact> getByLastName(Contact contact) {
 
         List<Contact> contactList = new ArrayList<>();
 
@@ -120,7 +121,7 @@ public class ContactDAOImplementation implements ContactDAO {
 
             PreparedStatement ps = con.prepareStatement(sql);
 
-            ps.setString(1, lastName);
+            ps.setString(1, contact.lastName);
             rs = ps.executeQuery();
 
             contactList = mapResultSet(rs);
@@ -135,7 +136,7 @@ public class ContactDAOImplementation implements ContactDAO {
             Logger.getAnonymousLogger().info("Prueba");
         } finally {
             try {
-                if(rs != null) rs.close();
+                if (rs != null) rs.close();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -145,7 +146,7 @@ public class ContactDAOImplementation implements ContactDAO {
 
 
     @Override
-    public List<Contact> getByPhoneNumber(String phoneNumber) {
+    public List<Contact> getByPhoneNumber(Contact contact) {
 
         List<Contact> contactList = new ArrayList<>();
 
@@ -157,7 +158,7 @@ public class ContactDAOImplementation implements ContactDAO {
 
             try (PreparedStatement ps = con.prepareStatement(sql)) {
 
-                ps.setString(1, phoneNumber);
+                ps.setString(1, contact.phoneNumber);
                 rs = ps.executeQuery();
 
                 contactList = mapResultSet(rs);
@@ -169,7 +170,7 @@ public class ContactDAOImplementation implements ContactDAO {
 
         } finally {
             try {
-                if(rs != null) rs.close();
+                if (rs != null) rs.close();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -179,7 +180,7 @@ public class ContactDAOImplementation implements ContactDAO {
     }
 
     @Override
-    public int delete(String phoneNumber) {
+    public int delete(Contact contact) {
 
         int affectedRows = 0;
 
@@ -189,7 +190,7 @@ public class ContactDAOImplementation implements ContactDAO {
 
             try (PreparedStatement ps = con.prepareStatement(sql)) {
 
-                ps.setString(1, phoneNumber);
+                ps.setString(1, contact.phoneNumber);
                 affectedRows = ps.executeUpdate();
 
             } catch (SQLException e) {
